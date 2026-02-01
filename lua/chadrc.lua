@@ -17,7 +17,7 @@ if vim.g.neovide then
   -- 3. ANIMATIONS (The smooth feeling)
   vim.g.neovide_cursor_animation_length = 0.13
   vim.g.neovide_scroll_animation_length = 0.3
-  vim.g.neovide_hide_mouse_when_typing = true
+  vim.g.neovide_hide_mouse_when_typing = false
 
   -- 4. COPY/PASTE SYNC (Crucial for hybrid feel)
   -- This allows Ctrl+C/V in Windows to talk to your Neovim y/p

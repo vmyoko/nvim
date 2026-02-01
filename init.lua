@@ -43,17 +43,6 @@ dofile(vim.g.base46_cache .. "statusline")
 require "options"
 require "autocmds"
 
-function Spawn_template_project(lang)
-  local templates = require "project_templates"
-  -- If the language exists in our lua file, run it
-  if templates[lang] then
-    templates[lang]()
-  else
-    -- If the language isn't in our lua file, do nothing (as requested)
-    print("No template for " .. lang)
-  end
-end
-
 vim.schedule(function()
   require "mappings"
 end)
@@ -93,3 +82,5 @@ end, {})
 -- Example: Integrating with a Telescope Picker
 -- You would call spawn_template_project(selection[1]) inside your
 -- Telescope attach_mappings function.
+
+require("project_templates")

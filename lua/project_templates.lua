@@ -24,7 +24,7 @@ vim.api.nvim_set_hl(0, "PCreatorBtnBorder", { fg = colors.nord_blue })
 -- Input Highlights
 vim.api.nvim_set_hl(0, "PCreatorInput", { bg = colors.darker_black, fg = colors.nord_blue })
 
-local NewProject = function()
+NewProject = function()
   -- 1. Create a blank buffer
   vim.cmd "enew"
   local new_buf_id = vim.api.nvim_get_current_buf()
@@ -65,7 +65,7 @@ local NewProject = function()
   end)
 end
 
-local NewFile = function()
+NewFile = function()
   -- 1. Create a blank buffer (Untitled)
   vim.cmd "enew"
 
@@ -105,6 +105,17 @@ local NewFile = function()
   end)
 end
 
+function Spawn_template_project(lang)
+  local templates = require "project_templates"
+  -- If the language exists in our lua file, run it
+  if templates[lang] then
+    templates[lang]()
+  else
+    -- If the language isn't in our lua file, do nothing (as requested)
+    print("No template for " .. lang)
+  end
+end
+
 -- ====================================================
 -- ⚙️ HELPER FUNCTIONS
 -- ====================================================
@@ -119,6 +130,19 @@ local function write_file(path, content)
     file:write(content)
     file:close()
   end
+end
+
+
+local function read_file(path)
+  local configPath = "/home/vinim/.config/nvim/lua/"
+
+  local file = io.open(configPath .. path, "r")
+  if file then
+    local content = file:read("*a")
+    file:close()
+    return content
+  end
+  return configPath .. path
 end
 
 local function set_focus(component)
@@ -544,6 +568,10 @@ M.langs = {
       vim.fn.system(cmd)
       local full_path = clean_path(data.path, data.name)
       vim.api.nvim_set_current_dir(full_path)
+
+      local makefile = read_file("templates/rust/Makefile")
+      write_file(full_path .. "/Makefile", makefile)
+
       vim.cmd("edit " .. full_path .. "/src/main.rs")
     end)
   end,
@@ -562,5 +590,9 @@ M.langs = {
     end)
   end,
 }
+
+vim.api.nvim_create_user_command("NewProject", function ()
+  NewProject()
+end, {})
 
 return M
