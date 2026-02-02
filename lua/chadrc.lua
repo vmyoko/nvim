@@ -23,7 +23,6 @@ if vim.g.neovide then
   -- This allows Ctrl+C/V in Windows to talk to your Neovim y/p
   vim.o.clipboard = "unnamedplus"
 
-  vim.g.neovide_transparency = 1
   vim.o.pumblend = 25
   vim.o.winblend = 25
 end
@@ -42,8 +41,8 @@ M.nvdash = {
   load_on_startup = true,
 
   buttons = {
-    { txt = "  New File", keys = "nf", cmd = "AdvancedNewFile" },
-    { txt = "  New Project", keys = "np", cmd = "AdvancedNewProject" },
+    { txt = "  New File", keys = "nf", cmd = "NewFile" },
+    { txt = "  New Project", keys = "np", cmd = "NewProject" },
 
     { txt = "" },
 

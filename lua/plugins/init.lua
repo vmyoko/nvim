@@ -35,10 +35,13 @@ return {
       "nvim-neotest/nvim-nio",
       "williamboman/mason.nvim",
       "williamboman/mason-nvim-dap.nvim",
+      "leoluz/nvim-dap-go",
     },
     config = function()
       local dap = require "dap"
       local dapui = require "dapui"
+
+      require("dap-go").setup()
 
       dap.adapters.codelldb = {
         type = "executable",
@@ -47,18 +50,42 @@ return {
 
       dap.configurations.rust = {
         {
-          name = "Launch file",
+          name = "Debug",
           type = "codelldb",
           request = "launch",
           program = function()
+            local exe_path = vim.fn.system "make echo-output-path"
+            exe_path = string.gsub(exe_path, "\n", "")
+
             -- A common pattern to find the correct debug binary
-            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
+            return exe_path
           end,
           cwd = "${workspaceFolder}",
           stopOnEntry = false,
           externalConsole = false,
         },
         -- You can add more configurations here, e.g., for specific tests
+      }
+
+      dap.configurations.cpp = dap.configurations.rust
+      dap.configurations.c = dap.configurations.rust
+
+      dap.configurations.go = {
+        {
+          name = "Debug",
+          type = "go",
+          request = "launch",
+          program = function()
+            local exe_path = vim.fn.system "make echo-output-path"
+            exe_path = string.gsub(exe_path, "\n", "")
+
+            -- A common pattern to find the correct debug binary
+            return exe_path
+          end,
+          cwd = "${workspaceFolder}",
+          stepOnEntry = false,
+          externalConsole = false,
+        },
       }
 
       -- Setup UI
@@ -322,7 +349,6 @@ return {
       vim.opt.wrap = false -- Minimaps work best without line wrap
       vim.g.neominimap_enabled = true
       vim.opt.sidescrolloff = 36
-
     end,
   },
 

@@ -95,35 +95,10 @@ cmp.setup {
   },
 }
 
-local overseer = require "overseer"
-local dap = require "dap"
+map({ "i", "n", "v" }, "<F5>", function()
+  vim.cmd "Debug"
+end)
 
--- 1. Register a generic "Cargo Build" task for Overseer
-overseer.register_template {
-  name = "Cargo Build (debug)",
-  builder = function(params)
-    return {
-      cmd = { "cargo", "build" },
-      components = { "default" },
-    }
-  end,
-}
-
--- 2. Create a command or keymap to Run Build -> Then Debug
-vim.keymap.set("n", "<F5>", function()
-  -- Step A: Start the build task
-  local task = overseer.run_template({ name = "Cargo Build (debug)" }, function(task)
-    if task then
-      -- Step B: Wait for build to complete
-      task:subscribe("on_complete", function(status)
-        if status == "SUCCESS" then
-          -- Step C: Start DAP if build succeeded
-          print "Build success! Starting debugger..."
-          dap.continue()
-        else
-          print "Build failed. Debugger cancelled."
-        end
-      end)
-    end
-  end)
-end, { desc = "Build & Debug Rust" })
+map({ "i", "n", "v" }, "<S-F5>", function()
+  vim.cmd "Run"
+end)

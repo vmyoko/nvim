@@ -132,13 +132,12 @@ local function write_file(path, content)
   end
 end
 
-
 local function read_file(path)
   local configPath = "/home/vinim/.config/nvim/lua/"
 
   local file = io.open(configPath .. path, "r")
   if file then
-    local content = file:read("*a")
+    local content = file:read "*a"
     file:close()
     return content
   end
@@ -336,7 +335,7 @@ local function project_creator(config, on_submit)
       comp:map("n", "<CR>", trigger_submit, { noremap = true })
     elseif comp == Cbtn then
       comp:map("n", "<CR>", function()
-        vim.cmd("AdvancedNewProject")
+        vim.cmd "AdvancedNewProject"
         layout:unmount()
       end, { noremap = true })
     else
@@ -365,9 +364,9 @@ end
 -- ==========================================
 
 M.langs = {
-  c = function()
+c = function()
     project_creator({
-      title = "New  C Project ",
+      title = " New  C Project ",
       preview = {
         "",
         "   C Project",
@@ -377,10 +376,10 @@ M.langs = {
         " - 2: Lib ",
         "",
         " Standards:",
-        "   C99, C11, C17, C23",
+        "   C++17, 20, 23, 26",
         "",
         " Generates:",
-        "  - main.c",
+        "  - main.cpp",
         "  - CMakeLists.txt",
         "  - build/",
         "",
@@ -396,29 +395,31 @@ M.langs = {
       local full_path = clean_path(data.path, data.name)
       vim.fn.mkdir(full_path, "p")
 
-      local main =
-        '#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}'
-      local cmake = string.format(
-        "cmake_minimum_required(VERSION 3.10)\nproject(%s)\nset(CMAKE_C_STANDARD %s)\n",
-        data.name,
-        data.ver
-      )
-      local target = (data.type == "1") and "add_executable" or "add_library"
-      cmake = cmake .. string.format("%s(%s main.c)", target, data.name)
+      local main = read_file "templates/c/main.c"
+      local cmake
+      local target = data.type
+
+      if target == "1" then
+        cmake = read_file "templates/c/exe.txt"
+      else
+        cmake = read_file "templates/c/lib.txt"
+      end
+
+      cmake = string.format(cmake, data.name, data.ver, data.name)
 
       write_file(full_path .. "/main.c", main)
       write_file(full_path .. "/CMakeLists.txt", cmake)
 
+      local makefile_template = read_file "templates/cpp/Makefile"
+      local makefile = string.format(makefile_template, data.name)
+      write_file(full_path .. "/Makefile", makefile)
+
       vim.api.nvim_set_current_dir(full_path)
 
-      -- Open using ABSOLUTE path to prevent URI errors
+      -- Open using ABSOLUTE path
       vim.cmd("edit " .. full_path .. "/main.c")
 
-      vim.defer_fn(function()
-        pcall(function()
-          vim.cmd "CMakeGenerate"
-        end)
-      end, 300)
+      vim.fn.system "make generate"
     end)
   end,
 
@@ -453,29 +454,31 @@ M.langs = {
       local full_path = clean_path(data.path, data.name)
       vim.fn.mkdir(full_path, "p")
 
-      local main =
-        '#include <iostream>\n\nint main() {\n    std::cout << "Hello World!" << std::endl;\n    return 0;\n}'
-      local cmake = string.format(
-        "cmake_minimum_required(VERSION 3.10)\nproject(%s)\nset(CMAKE_CXX_STANDARD %s)\n",
-        data.name,
-        data.ver
-      )
-      local target = (data.type == "1") and "add_executable" or "add_library"
-      cmake = cmake .. string.format("%s(%s main.cpp)", target, data.name)
+      local main = read_file "templates/cpp/main.cpp"
+      local cmake
+      local target = data.type
+
+      if target == "1" then
+        cmake = read_file "templates/cpp/exe.txt"
+      else
+        cmake = read_file "templates/cpp/lib.txt"
+      end
+
+      cmake = string.format(cmake, data.name, data.ver, data.name)
 
       write_file(full_path .. "/main.cpp", main)
       write_file(full_path .. "/CMakeLists.txt", cmake)
+
+      local makefile_template = read_file "templates/cpp/Makefile"
+      local makefile = string.format(makefile_template, data.name)
+      write_file(full_path .. "/Makefile", makefile)
 
       vim.api.nvim_set_current_dir(full_path)
 
       -- Open using ABSOLUTE path
       vim.cmd("edit " .. full_path .. "/main.cpp")
 
-      vim.defer_fn(function()
-        pcall(function()
-          vim.cmd "CMakeGenerate"
-        end)
-      end, 300)
+      vim.fn.system "make generate"
     end)
   end,
 
@@ -548,10 +551,11 @@ M.langs = {
       local mod_name = (data.mod ~= "") and data.mod or data.name
       local cmd_prefix = "cd " .. full_path .. " && "
       vim.fn.system(cmd_prefix .. "go mod init " .. mod_name)
-      write_file(
-        full_path .. "/main.go",
-        'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, Go!")\n}'
-      )
+      write_file(full_path .. "/main.go", read_file "templates/go/main.go")
+
+      local makefile_template = read_file "templates/go/Makefile"
+      local makefile = string.format(makefile_template, data.name)
+      write_file(full_path .. "/Makefile", makefile)
 
       vim.api.nvim_set_current_dir(full_path)
       vim.cmd("edit " .. full_path .. "/main.go")
@@ -569,7 +573,8 @@ M.langs = {
       local full_path = clean_path(data.path, data.name)
       vim.api.nvim_set_current_dir(full_path)
 
-      local makefile = read_file("templates/rust/Makefile")
+      local makefile_template = read_file "templates/rust/Makefile"
+      local makefile = string.format(makefile_template, data.name)
       write_file(full_path .. "/Makefile", makefile)
 
       vim.cmd("edit " .. full_path .. "/src/main.rs")
@@ -591,8 +596,25 @@ M.langs = {
   end,
 }
 
-vim.api.nvim_create_user_command("NewProject", function ()
+local Debug = function()
+  vim.fn.system "make build -B"
+  require("dap").continue()
+end
+
+local Run = function()
+  vim.fn.system "make run"
+end
+
+vim.api.nvim_create_user_command("NewProject", function()
   NewProject()
+end, {})
+
+vim.api.nvim_create_user_command("Debug", function()
+  Debug()
+end, {})
+
+vim.api.nvim_create_user_command("Run", function()
+  Run()
 end, {})
 
 return M
