@@ -585,12 +585,19 @@ c = function()
     project_creator({
       title = " New  C-Sharp Creator ",
       preview = { "", "   C-Sharp Project", "", " Generates:", "  - Program.cs" },
-      fields = { { id = "name", label = "Project Name" } },
+      fields = {
+        { id = "name", label = "Project Name" },
+      },
     }, function(data)
       local cmd = "cd " .. data.path .. " && dotnet new console -n " .. data.name
       vim.fn.system(cmd)
       local full_path = clean_path(data.path, data.name)
       vim.api.nvim_set_current_dir(full_path)
+
+      local makefile_template = read_file "templates/cs/Makefile"
+      local makefile = string.format(makefile_template, data.name)
+      write_file(full_path .. "/Makefile", makefile)
+
       vim.cmd("edit " .. full_path .. "/Program.cs")
     end)
   end,
