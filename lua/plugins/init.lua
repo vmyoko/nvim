@@ -48,6 +48,11 @@ return {
         command = "/home/vinim/.local/share/nvim/mason/bin/codelldb",
       }
 
+      dap.adapters.coreclr = {
+        type = "executable",
+        command = "/snap/bin/netcoredbg",
+      }
+
       dap.configurations.rust = {
         {
           name = "Debug",
@@ -57,14 +62,12 @@ return {
             local exe_path = vim.fn.system "make echo-output-path"
             exe_path = string.gsub(exe_path, "\n", "")
 
-            -- A common pattern to find the correct debug binary
             return exe_path
           end,
           cwd = "${workspaceFolder}",
           stopOnEntry = false,
           externalConsole = false,
         },
-        -- You can add more configurations here, e.g., for specific tests
       }
 
       dap.configurations.cpp = dap.configurations.rust
@@ -79,7 +82,23 @@ return {
             local exe_path = vim.fn.system "make echo-output-path"
             exe_path = string.gsub(exe_path, "\n", "")
 
-            -- A common pattern to find the correct debug binary
+            return exe_path
+          end,
+          cwd = "${workspaceFolder}",
+          stepOnEntry = false,
+          externalConsole = false,
+        },
+      }
+
+      dap.configurations.cs = {
+        {
+          name = "Debug",
+          type = "coreclr",
+          request = "launch",
+          program = function()
+            local exe_path = vim.fn.system "make echo-output-path"
+            exe_path = string.gsub(exe_path, "\n", "")
+
             return exe_path
           end,
           cwd = "${workspaceFolder}",

@@ -609,7 +609,7 @@ local Debug = function()
 end
 
 local Run = function()
-  require("nvchad.term").toggle { pos = "float", id = "runner", cmd = "clear && make run" }
+  vim.cmd("terminal make run")
 end
 
 vim.api.nvim_create_user_command("NewProject", function()
