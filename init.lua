@@ -83,4 +83,4 @@ end, {})
 -- You would call spawn_template_project(selection[1]) inside your
 -- Telescope attach_mappings function.
 
-require("project_templates")
+require "project_templates"
