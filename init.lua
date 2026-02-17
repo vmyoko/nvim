@@ -1,6 +1,80 @@
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
 
+-- 1. Setup Mason itself first
+require("mason").setup({
+    ui = {
+        icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+        }
+    }
+})
+
+-- 2. Setup mason-tool-installer
+-- This plugin handles the "Ensure Installed" for EVERYTHING (LSP, DAP, Linters)
+require("mason-tool-installer").setup({
+    ensure_installed = {
+        -- === LSPs ===
+        "gopls",
+        "rust-analyzer",
+        "csharp-language-server", 
+        "marksman",
+        "css-variables-language-server",
+        "html-lsp",
+        "clangd",
+        "css-lsp",
+        "cssmodules-language-server",
+        "golangci-lint-langserver",
+        "json-lsp",
+        "jsonld-lsp",
+        "llm-ls",
+        "lua-language-server",
+        "markdown-oxide",
+        "omnisharp",
+        "pyright",
+        "python-lsp-server",
+        "typescript-language-server", -- Note: This installs the server. In lspconfig setup, refer to it as "ts_ls"
+        "home-assistant-language-server", -- Corrected from 'vscode-home-assistant'
+        "yaml-language-server",
+
+        -- === Linters & Formatters ===
+        "cfn-lint",
+        "markdownlint-cli2",
+        "clang-format",
+        "htmlhint",
+        "golangci-lint",
+        "cmakelang",
+        "csharpier",
+        -- "json-repair", -- Note: Check if this exists in Mason, might need manual install or specific naming
+        "cmakelint",
+        "cpplint",
+        "hlint",
+        "jsonlint",
+        "markdown-toc",
+        "markdownlint",
+        "mdformat",
+        "npm-groovy-lint",
+        "pyink",
+        "pylint",
+        "pylyzer",
+        "stylua",
+        -- "xcbeautify", -- Note: Usually a Swift tool installed via Brew, might not be in Mason
+        "yamlfmt",
+
+        -- === Debug Adapters (DAP) ===
+        "codelldb",
+        "delve",
+        "cpptools",
+        "go-debug-adapter",
+        "js-debug-adapter",
+        "netcoredbg",
+    },
+    -- Auto-install on startup
+    run_on_start = true, 
+})
+
 vim.opt.scrolloff = 0
 
 -- Normal, Insert, and Visual mode horizontal scrolling
