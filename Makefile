@@ -5,9 +5,9 @@ run:build
 
 install-ubuntu-snap:
 	@apt update
-	@apt install build-essential
-	@apt install unzip
-	@apt install git
+	@apt install build-essential -y
+	@apt install unzip -y
+	@apt install git -y
 
 	@snap refresh
 	@snap install curl --classic
@@ -19,30 +19,27 @@ install-ubuntu-snap:
 	@nvm install --lts
 	@nvm use --lts
 
-	@apt install clang
-	@apt install gdb
-	@apt install golang-go
+	@apt install clang -y
+	@apt install gdb -y
+	@apt install golang-go -y
 	@curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 
 install-debian:
 	@apt update
-	@apt install build-essential
-	@apt install unzip
-	@apt install git
-	@apt install curl
+	@apt install build-essential -y
+	@apt install unzip -y
+	@apt install git -y
+	@apt install curl -y
 	@curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 	@rm -rf /opt/nvim-linux-x86_64
 	@tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 	@export PATH="$:/opt/nvim-linux-x86_64/bin"
-	@apt install pyenv
+	@apt install pyenv -y
 	@pyenv install 3.12.2
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-	@source ~/.bashrc
-	@source ~/.bash_profile
-	@source ~/.profile
 	@nvm install --lts
 	@nvm use --lts
-	@apt install clang
-	@apt install gdb
-	@apt install golang-go
+	@apt install clang -y
+	@apt install gdb -y
+	@apt install golang-go -y
 	@curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
