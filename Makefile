@@ -16,8 +16,8 @@ install-ubuntu-snap:
 	@snap install pyenv --classic
 	@pyenv install 1.14.2
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-	@chmod +x ~/bashrc
-	@~/bashrc
+	@chmod +x ~/.bashrc
+	@~/.bashrc
 	@nvm install --lts
 	@nvm use --lts
 
@@ -39,8 +39,8 @@ install-debian:
 	@apt install pyenv -y
 	@pyenv install 3.12.2
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-	@chmod +x ~/bashrc
-	@~/bashrc
+	@chmod +x ~/.bashrc
+	@~/.bashrc
 	@nvm install --lts
 	@nvm use --lts
 	@apt install clang -y
