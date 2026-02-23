@@ -35,7 +35,7 @@ map({ "n", "t" }, "<C-t>", function()
 end, {})
 
 map("n", "<C-f>", function()
-  require("telescope.builtin").find_files()
+  vim.cmd(":Telescope file_browser")
 end)
 
 map("n", "<F2>", function()

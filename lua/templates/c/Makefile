@@ -10,3 +10,8 @@ build: generate
 	@cmake --build ./$(BUILD_DIR)
 run: build
 	@./$(BUILD_DIR)/$(EXE_NAME)
+regen:
+	@echo "Removing Build Files..."
+	@rm -rf build
+	@echo "Regenerating CMake Build Files..."
+	@cmake -G Ninja -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON

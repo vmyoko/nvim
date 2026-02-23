@@ -441,4 +441,10 @@ return {
       require("overseer").setup()
     end,
   },
+
+  --lazy
+  {
+    "nvim-telescope/telescope-file-browser.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+  },
 }
