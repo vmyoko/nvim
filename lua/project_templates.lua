@@ -364,7 +364,7 @@ end
 -- ==========================================
 
 M.langs = {
-c = function()
+  c = function()
     project_creator({
       title = " New  C Project ",
       preview = {
@@ -609,11 +609,15 @@ local Debug = function()
 end
 
 local Run = function()
-  vim.cmd("terminal make run")
+  vim.cmd "terminal make run"
 end
 
 vim.api.nvim_create_user_command("NewProject", function()
   NewProject()
+end, {})
+
+vim.api.nvim_create_user_command("NewFile", function()
+  NewFile()
 end, {})
 
 vim.api.nvim_create_user_command("Debug", function()

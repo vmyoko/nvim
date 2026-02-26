@@ -3,7 +3,7 @@ build:
 run:build
 	@docker run -it --rm nvim-test
 
-install-ubuntu-snap:
+install-ubuntu:
 	@apt update
 	@apt install build-essential -y
 	@apt install unzip -y
@@ -18,13 +18,16 @@ install-ubuntu-snap:
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 	@chmod +x ~/.bashrc
 	@~/.bashrc
-	@nvm install --lts
-	@nvm use --lts
+	@bash -c 'export NVM_DIR="$$HOME/.nvm" && \
+	[ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh" && \
+	nvm install --lts && \
+	nvm use --lts'
 
 	@apt install clang -y
 	@apt install gdb -y
 	@apt install golang-go -y
 	@curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+	@nvim
 
 install-debian:
 	@apt update
@@ -41,9 +44,12 @@ install-debian:
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 	@chmod +x ~/.bashrc
 	@~/.bashrc
-	@nvm install --lts
-	@nvm use --lts
+	@bash -c 'export NVM_DIR="$$HOME/.nvm" && \
+	[ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh" && \
+	nvm install --lts && \
+	nvm use --lts'
 	@apt install clang -y
 	@apt install gdb -y
 	@apt install golang-go -y
 	@curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+	@nvim

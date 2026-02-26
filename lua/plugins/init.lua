@@ -5,7 +5,7 @@ return {
     opts = require "configs.conform",
   },
 
-  -- 2. Language Server (LSP)
+  -- 2. Language Server (LSP) Base
   {
     "neovim/nvim-lspconfig",
     config = function()
@@ -61,7 +61,6 @@ return {
           program = function()
             local exe_path = vim.fn.system "make echo-output-path"
             exe_path = string.gsub(exe_path, "\n", "")
-
             return exe_path
           end,
           cwd = "${workspaceFolder}",
@@ -81,7 +80,6 @@ return {
           program = function()
             local exe_path = vim.fn.system "make echo-output-path"
             exe_path = string.gsub(exe_path, "\n", "")
-
             return exe_path
           end,
           cwd = "${workspaceFolder}",
@@ -98,7 +96,6 @@ return {
           program = function()
             local exe_path = vim.fn.system "make echo-output-path"
             exe_path = string.gsub(exe_path, "\n", "")
-
             return exe_path
           end,
           cwd = "${workspaceFolder}",
@@ -149,70 +146,50 @@ return {
     end,
   },
 
-  -- 5. MASON (The Package Manager - Installs Everything)
+  -- 5. MASON (The Package Manager - Installs LSPs and Formatters)
   {
     "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = {
-        -- LSPs
-        "gopls",
-        "rust-analyzer",
-        "csharp-language-server",
-        "marksman",
-        "css-variables-language-server",
-        "html-lsp",
-        "clangd",
-        "css-lsp",
-        "cssmodules-language-server",
-        "golangci-lint-langserver",
-        "json-lsp",
-        "jsonld-lsp",
-        "llm-ls",
-        "lua-language-server",
-        "markdown-oxide",
-        "omnisharp",
-        "pyright",
-        "python-lsp-server",
-        "typescript-language-server",
-        "vscode-home-assistant",
-        "yaml-language-server",
-
-        -- Linters & Formatters
-        "cfn-lint",
-        "markdownlint-cli2",
-        "clang-format",
-        "htmlhint",
-        "golangci-lint",
-        "cmakelang",
-        "csharpier",
-        "json-repair",
-        "cmakelint",
-        "cpplint",
-        "hlint",
-        "jsonlint",
-        "markdown-toc",
-        "markdownlint",
-        "mdformat",
-        "npm-groovy-lint",
-        "pyink",
-        "pylint",
-        "pylyzer",
-        "stylua",
-        "xcbeautify",
-        "yamlfmt",
-
-        -- Debug Adapters (DAP)
-        "codelldb",
-        "delve",
-        "cpptools",
-        "go-debug-adapter",
-        "js-debug-adapter",
-        "netcoredbg",
-      },
+    dependencies = {
+      "williamboman/mason-lspconfig.nvim",
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
     },
+    config = function()
+      -- Inicializa Mason
+      require("mason").setup()
+
+      -- Formatadores e ferramentas extras
+      require("mason-tool-installer").setup {
+        ensure_installed = { "prettier", "clang-format", "stylua" },
+        auto_update = false,
+        run_on_start = true,
+      }
+
+      -- LSPs que você quer garantir instalados
+      -- O automatic_enable = true já habilita automaticamente
+      require("mason-lspconfig").setup {
+        ensure_installed = {
+          "clangd",
+          "html",
+          "cssls",
+          "ts_ls",
+          "omnisharp",
+          "gopls",
+          "pyright",
+          "marksman",
+          "jsonls",
+          "lua_ls",
+        },
+        automatic_enable = true, -- habilita por padrão
+      }
+
+      -- Opcional: Fiz isso caso queira configurar ajustes específicos
+      -- vim.lsp.config("lua_ls", { settings = { ... } })
+
+      -- Com a API nova integrada no Neovim, não precisa de setup_handlers aqui
+    end,
   },
 
-  -- 6. MASON DAP (Configures Debuggers - ONLY Debuggers go here)
+  -- 6. MASON DAP (Configures Debuggers)
   {
     "jay-babu/mason-nvim-dap.nvim",
     opts = {
@@ -228,7 +205,7 @@ return {
     },
   },
 
-  -- 5. CMAKE TOOLS (The Project Manager)
+  -- 7. CMAKE TOOLS (The Project Manager)
   {
     "Civitasv/cmake-tools.nvim",
     lazy = false,
@@ -254,7 +231,7 @@ return {
     end,
   },
 
-  -- 6. FILE EXPLORER
+  -- 8. FILE EXPLORER
   {
     "nvim-tree/nvim-tree.lua",
     opts = {
@@ -272,7 +249,6 @@ return {
       -- OPTIMIZED: Only open tree if starting nvim without a file
       vim.api.nvim_create_autocmd({ "VimEnter" }, {
         callback = function(data)
-          -- buffer is a directory
           local directory = vim.fn.isdirectory(data.file) == 1
           if not directory and data.file ~= "" then
             return
@@ -283,7 +259,7 @@ return {
     end,
   },
 
-  -- UI Utilities (Minty, Volt, Menu)
+  -- 9. UI Utilities (Minty, Volt, Menu)
   { "nvchad/volt", lazy = false },
   {
     "nvzone/minty",
@@ -299,7 +275,7 @@ return {
   },
   { "MunifTanjim/nui.nvim", lazy = false },
 
-  -- Telescope
+  -- 10. Telescope
   {
     "nvim-telescope/telescope.nvim",
     opts = {
@@ -317,7 +293,7 @@ return {
     },
   },
 
-  -- 1. STICKY HEADERS
+  -- 11. STICKY HEADERS
   {
     "nvim-treesitter/nvim-treesitter-context",
     dependencies = {
@@ -334,8 +310,7 @@ return {
     end,
   },
 
-  -- 2. THE ERROR SCROLLBAR (Satellite)
-  -- Keeping this one as it integrates with Git/LSP better than scrollview
+  -- 12. THE ERROR SCROLLBAR (Satellite)
   {
     "lewis6991/satellite.nvim",
     lazy = false,
@@ -351,25 +326,7 @@ return {
     end,
   },
 
-  -- 3. TRADITIONAL SCROLLBAR (Disabled to avoid conflict with Satellite)
-  -- If you prefer this one, comment out "Satellite" above and uncomment this.
-  -- {
-  --   "dstein64/nvim-scrollview",
-  --   lazy = false,
-  --   config = function()
-  --     require("scrollview").setup({
-  --       excluded_filetypes = { "NvimTree", "terminal", "help" },
-  --       current_only = true,
-  --       horizontal_edge = "bottom",
-  --       show_horizontal = true,
-  --       always_show = true,
-  --       column = 1,
-  --     })
-  --     vim.api.nvim_set_hl(0, 'ScrollViewHorizontal', { bg = '#61afef', fg = '#61afef' })
-  --   end,
-  -- },
-
-  -- 4. BETTER FOLDING (UFO)
+  -- 13. BETTER FOLDING (UFO)
   {
     "kevinhwang91/nvim-ufo",
     dependencies = "kevinhwang91/promise-async",
@@ -379,7 +336,7 @@ return {
     end,
   },
 
-  -- 5. AUTOCOMPLETE (Nvim-CMP Overrides)
+  -- 14. AUTOCOMPLETE (Nvim-CMP Overrides)
   {
     "hrsh7th/nvim-cmp",
     opts = function()
@@ -388,7 +345,6 @@ return {
 
       conf.mapping["<CR>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
-          -- If the menu is open, close it and just do a regular Enter (new line)
           cmp.abort()
         end
         fallback()
@@ -418,6 +374,7 @@ return {
     end,
   },
 
+  -- 15. NEOMINIMAP
   {
     "Isrothy/neominimap.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
@@ -429,12 +386,13 @@ return {
       "<cmd>Neominimap Toggle<cr>",
     },
     init = function()
-      vim.opt.wrap = false -- Minimaps work best without line wrap
+      vim.opt.wrap = false
       vim.g.neominimap_enabled = true
       vim.opt.sidescrolloff = 36
     end,
   },
 
+  -- 16. OVERSEER (Task Runner)
   {
     "stevearc/overseer.nvim",
     config = function()
@@ -442,7 +400,7 @@ return {
     end,
   },
 
-  --lazy
+  -- 17. TELESCOPE FILE BROWSER
   {
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
