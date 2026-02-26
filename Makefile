@@ -38,8 +38,8 @@ install-debian:
 	@curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 	@rm -rf /opt/nvim-linux-x86_64
 	@tar -C /opt -xzf nvim-linux-x86_64.tar.gz
-	PATH := $(PATH):/opt/nvim-linux-x86_64/bin 
-	@export PATH
+	@NVIM_PATH := "$(PATH):/opt/nvim-linux-x86_64/bin" 
+	@export PATH := $(NVIM_PATH)
 	@apt install pyenv -y
 	@pyenv install 3.12.2
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
