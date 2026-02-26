@@ -13,7 +13,7 @@ install-ubuntu:
 	@snap install curl --classic
 	@snap install nvim --classic
 
-	@snap install pyenv --classic
+	@snap install pyenv --edge
 	@pyenv install 1.14.2
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 	@chmod +x ~/.bashrc
@@ -38,7 +38,7 @@ install-debian:
 	@curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 	@rm -rf /opt/nvim-linux-x86_64
 	@tar -C /opt -xzf nvim-linux-x86_64.tar.gz
-	@export PATH="$:/opt/nvim-linux-x86_64/bin"
+	@export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 	@apt install pyenv -y
 	@pyenv install 3.12.2
 	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
