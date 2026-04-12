@@ -41,20 +41,19 @@ M.nvdash = {
   load_on_startup = true,
 
   buttons = {
-    { txt = "  New File", keys = "nf", cmd = "NewFile" },
+    { txt = " Project Manager", keys = "p", cmd = "ProjectManager" },
     { txt = "  New Project", keys = "np", cmd = "NewProject" },
+    { txt = "  New File", keys = "nf", cmd = "NewFile" },
 
     { txt = "" },
 
     { txt = "  Find File", keys = "ff", cmd = "Telescope find_files" },
-    { txt = "  Recent Files", keys = "fo", cmd = "Telescope oldfiles" },
     { txt = "󰩮  Find Word", keys = "fw", cmd = "Telescope live_grep" },
     { txt = "󰆍  Open Terminal", keys = "c", cmd = "terminal" },
 
     { txt = "" },
 
     { txt = "  Themes", keys = "th", cmd = "Telescope themes" },
-    { txt = "  Mappings", keys = "ch", cmd = "NvCheatsheet" },
   },
 }
 M.ui = {
