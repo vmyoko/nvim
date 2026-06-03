@@ -1,9 +1,0 @@
-cmake_minimum_required(VERSION 3.10)
-
-project(%s)
-
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_C_STANDARD %s)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
-add_library(%s main.c)

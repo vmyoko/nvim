@@ -153,18 +153,16 @@ return {
       "WhoIsSethDaniel/mason-tool-installer.nvim",
     },
     config = function()
-      -- Inicializa Mason
       require("mason").setup()
 
-      -- Formatadores e ferramentas extras
+      -- Formatters and extra tools
       require("mason-tool-installer").setup {
         ensure_installed = { "prettier", "clang-format", "stylua" },
         auto_update = false,
         run_on_start = true,
       }
 
-      -- LSPs que você quer garantir instalados
-      -- O automatic_enable = true já habilita automaticamente
+      -- LSPs to ensure are installed
       require("mason-lspconfig").setup {
         ensure_installed = {
           "clangd",
@@ -178,13 +176,8 @@ return {
           "jsonls",
           "lua_ls",
         },
-        automatic_enable = true, -- habilita por padrão
+        automatic_installation = true,
       }
-
-      -- Opcional: Fiz isso caso queira configurar ajustes específicos
-      -- vim.lsp.config("lua_ls", { settings = { ... } })
-
-      -- Com a API nova integrada no Neovim, não precisa de setup_handlers aqui
     end,
   },
 
@@ -245,16 +238,6 @@ return {
     },
     config = function(_, opts)
       require("nvim-tree").setup(opts)
-      -- OPTIMIZED: Only open tree if starting nvim without a file
-      vim.api.nvim_create_autocmd({ "VimEnter" }, {
-        callback = function(data)
-          local directory = vim.fn.isdirectory(data.file) == 1
-          if not directory and data.file ~= "" then
-            return
-          end
-          require("nvim-tree.api").tree.open()
-        end,
-      })
     end,
   },
 
@@ -403,5 +386,174 @@ return {
   {
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+    config = function()
+      require("telescope").load_extension "file_browser"
+    end,
+  },
+
+  -- 18. NOICE (UI Enhancements)
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      lsp = {
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true,
+        },
+      },
+      presets = {
+        bottom_search = true,
+        command_palette = true,
+        long_message_to_split = true,
+      },
+    },
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      {
+        "rcarriga/nvim-notify",
+        config = function()
+          require("notify").setup({
+            background_colour = "#000000",
+          })
+        end,
+      },
+    }
+  },
+
+  -- 19. HARPOON (Code Navigation)
+  {
+    "ThePrimeagen/harpoon",
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
+
+  -- 20. NVIM-SURROUND (Editing)
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+        require("nvim-surround").setup({})
+    end
+  },
+
+  -- 21. OIL.NVIM (File Explorer)
+  {
+    "stevearc/oil.nvim",
+    opts = {},
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
+
+  -- 22. NEOGIT (Git Integration)
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "sindrets/diffview.nvim",
+      "nvim-telescope/telescope.nvim",
+    },
+    config = true
+  },
+
+  -- 23. TROUBLE (Diagnostics)
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {},
+  },
+
+  -- 24. TODO COMMENTS
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {},
+  },
+
+  -- 25. FLASH (Navigation)
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+    },
+  },
+
+  -- 26. AUTOTAG (HTML/JSX closing)
+  {
+    "windwp/nvim-ts-autotag",
+    config = function()
+      require('nvim-ts-autotag').setup()
+    end,
+  },
+
+  -- 27. NVIM-TREE Overrides
+  {
+    "nvim-tree/nvim-tree.lua",
+    opts = function(_, opts)
+      opts.git = { enable = true }
+      opts.diagnostics = {
+        enable = true,
+        show_on_dirs = true,
+      }
+      opts.update_focused_file = {
+        enable = true,
+        update_root = false,
+      }
+      opts.renderer = opts.renderer or {}
+      opts.renderer.highlight_git = true
+      opts.renderer.icons = opts.renderer.icons or {}
+      opts.renderer.icons.show = opts.renderer.icons.show or {}
+      opts.renderer.icons.show.git = true
+      return opts
+    end,
+  },
+
+  -- 28. BREADCRUMBS (Winbar)
+  {
+    "utilyre/barbecue.nvim",
+    name = "barbecue",
+    version = "*",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = {},
+  },
+
+  -- 29. TELESCOPE UNDO
+  {
+    "debugloop/telescope-undo.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    config = function()
+      require("telescope").load_extension("undo")
+    end,
+  },
+
+  -- 30. PERSISTENCE (Session Management)
+  {
+    "folke/persistence.nvim",
+    event = "BufReadPre",
+    opts = { options = vim.opt.sessionoptions:get() },
+  },
+
+  -- 31. REFACTORING
+  {
+    "ThePrimeagen/refactoring.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("refactoring").setup()
+    end,
+  },
+
+  -- 32. UI FRAMEWORK (For Custom Dashboard)
+  {
+    "MunifTanjim/nui.nvim",
+    lazy = false,
   },
 }

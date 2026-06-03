@@ -1,29 +1,4 @@
--- This file needs to have same structure as nvconfig.lua 
--- https://github.com/NvChad/ui/blob/v3.0/lua/nvconfig.lua
--- Please read that file to know all available options :( 
-
----@type ChadrcConfig
-local M = {}
-
-M.base46 = {
-	theme = "material-deep-ocean",
-
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
-}
-
--- M.nvdash = { load_on_startup = true }
--- M.ui = {
---       tabufline = {
---          lazyload = false
---      }
--- }
-
 require "nvchad.mappings"
-
--- add yours here
 
 local map = vim.keymap.set
 
@@ -42,8 +17,22 @@ map("n", "<F2>", function()
   require "nvchad.lsp.renamer"()
 end)
 
-map({ "i", "n", "v" }, "<ScrollWheelLeft>", "<zl>")
-map({ "i", "n", "v" }, "<ScrollWheelRight", "<zh>")
+-- Horizontal scrolling
+map({ "n", "i", "v" }, "<ScrollWheelLeft>", "5zh", { silent = true })
+map({ "n", "i", "v" }, "<ScrollWheelRight>", "5zl", { silent = true })
+map({ "n", "i", "v" }, "<S-ScrollWheelUp>", "5zh", { silent = true })
+map({ "n", "i", "v" }, "<S-ScrollWheelDown>", "5zl", { silent = true })
+
+-- Mouse menu
+map({ "n", "v" }, "<RightMouse>", function()
+  require("menu.utils").delete_old_menus()
+  vim.cmd.exec '"normal! \\<RightMouse>"'
+
+  local buf = vim.api.nvim_win_get_buf(vim.fn.getmousepos().winid)
+  local options = vim.bo[buf].ft == "NvimTree" and "nvimtree" or "default"
+
+  require("menu").open(options, { mouse = true })
+end, {})
 
 -- Copy (Visual mode)
 map("v", "<C-c>", '"+y', { desc = "Copy to system clipboard" })
@@ -115,6 +104,8 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Insert,
       select = false, -- Only confirm if you specifically selected an item
     },
+
+    ["<ESC>"] = cmp.mapping.abort()
   },
 }
 
@@ -132,3 +123,56 @@ end)
 map("n", "<leader>np", function ()
   vim.cmd "NewProject"
 end)
+
+-- OIL.NVIM
+map("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
+-- NEOGIT
+map("n", "<leader>gs", "<CMD>Neogit<CR>", { desc = "Open Neogit" })
+
+-- DIFFVIEW
+map("n", "<leader>gd", "<CMD>DiffviewOpen<CR>", { desc = "Open Diffview" })
+map("n", "<leader>gD", "<CMD>DiffviewClose<CR>", { desc = "Close Diffview" })
+
+-- HARPOON
+local harpoon = require("harpoon")
+map("n", "<leader>a", function() harpoon:list():add() end, { desc = "Harpoon Add" })
+map("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon Menu" })
+map("n", "<C-1>", function() harpoon:list():select(1) end, { desc = "Harpoon 1" })
+map("n", "<C-2>", function() harpoon:list():select(2) end, { desc = "Harpoon 2" })
+map("n", "<C-3>", function() harpoon:list():select(3) end, { desc = "Harpoon 3" })
+map("n", "<C-4>", function() harpoon:list():select(4) end, { desc = "Harpoon 4" })
+
+-- TROUBLE
+map("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", { desc = "Diagnostics (Trouble)" })
+map("n", "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", { desc = "Buffer Diagnostics (Trouble)" })
+
+-- TODO COMMENTS
+map("n", "<leader>ft", "<cmd>TodoTelescope<cr>", { desc = "Find TODOs" })
+
+-- TELESCOPE UNDO
+map("n", "<leader>fu", "<cmd>Telescope undo<cr>", { desc = "Find Undo History" })
+
+-- PERSISTENCE (Session Management)
+map("n", "<leader>qs", function() require("persistence").load() end, { desc = "Restore Session for cwd" })
+map("n", "<leader>ql", function() require("persistence").load({ last = true }) end, { desc = "Restore Last Session" })
+map("n", "<leader>qd", function() require("persistence").stop() end, { desc = "Stop Session Save" })
+
+-- REFACTORING
+map("v", "<leader>re", ":Refactor extract ", { desc = "Extract Function" })
+map("v", "<leader>rf", ":Refactor extract_to_file ", { desc = "Extract Function To File" })
+map("v", "<leader>rv", ":Refactor extract_var ", { desc = "Extract Variable" })
+map({ "n", "v" }, "<leader>ri", ":Refactor inline_var", { desc = "Inline Variable" })
+
+-- NEOVIDE ZOOM
+if vim.g.neovide then
+  map({ "n", "v", "i" }, "<C-=>", function()
+    vim.g.neovide_scale_factor = (vim.g.neovide_scale_factor or 1) + 0.1
+  end, { desc = "Zoom In (Neovide)" })
+  map({ "n", "v", "i" }, "<C-->", function()
+    vim.g.neovide_scale_factor = (vim.g.neovide_scale_factor or 1) - 0.1
+  end, { desc = "Zoom Out (Neovide)" })
+  map({ "n", "v", "i" }, "<C-0>", function()
+    vim.g.neovide_scale_factor = 1.0
+  end, { desc = "Reset Zoom (Neovide)" })
+end

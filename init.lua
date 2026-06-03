@@ -1,17 +1,19 @@
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
 
--- 1. Setup Mason itself first
-vim.opt.scrolloff = 0
-
--- Normal, Insert, and Visual mode horizontal scrolling
--- Using <ScrollWheelLeft/Right> which some terminals send for Shift+Scroll
-vim.keymap.set({ "n", "i", "v" }, "<ScrollWheelLeft>", "5zh", { silent = true })
-vim.keymap.set({ "n", "i", "v" }, "<ScrollWheelRight>", "5zl", { silent = true })
-
--- Manual fallback if Shift+Scroll specifically reaches Neovim
-vim.keymap.set({ "n", "i", "v" }, "<S-ScrollWheelUp>", "5zh", { silent = true })
-vim.keymap.set({ "n", "i", "v" }, "<S-ScrollWheelDown>", "5zl", { silent = true })
+-- Dynamically inject common Windows paths so Neovim/Mason can find 7z and gcc without the user needing to modify their environment variables
+if vim.fn.has("win32") == 1 then
+  local extra_paths = {
+    "C:\\Program Files\\7-Zip",
+    "C:\\Program Files\\Git\\mingw64\\bin",
+    "C:\\Program Files\\Git\\usr\\bin"
+  }
+  for _, p in ipairs(extra_paths) do
+    if vim.fn.isdirectory(p) == 1 and not string.find(vim.env.PATH, p, 1, true) then
+      vim.env.PATH = vim.env.PATH .. ";" .. p
+    end
+  end
+end
 
 -- bootstrap lazy and all plugins
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
@@ -25,66 +27,40 @@ vim.opt.rtp:prepend(lazypath)
 
 local lazy_config = require "configs.lazy"
 
--- load plugins
-require("lazy").setup({
-  {
-    "NvChad/NvChad",
-    lazy = false,
-    branch = "v2.5",
-    import = "nvchad.plugins",
-  },
+local function start_lazy()
+  -- load plugins
+  require("lazy").setup({
+    {
+      "NvChad/NvChad",
+      lazy = false,
+      branch = "v2.5",
+      import = "nvchad.plugins",
+    },
+    { import = "plugins" },
+  }, lazy_config)
 
-  { import = "plugins" },
-}, lazy_config)
+  -- load theme
+  dofile(vim.g.base46_cache .. "defaults")
+  dofile(vim.g.base46_cache .. "statusline")
 
--- load theme
-dofile(vim.g.base46_cache .. "defaults")
-dofile(vim.g.base46_cache .. "statusline")
+  require "options"
+  require "autocmds"
 
-require "options"
-require "autocmds"
+  vim.schedule(function()
+    require "mappings"
+  end)
+end
 
-vim.schedule(function()
-  require "mappings"
-end)
+local user_data_path = vim.fn.stdpath("config") .. "/data/user.json"
+if vim.fn.filereadable(user_data_path) == 0 then
+  require("configs.wizard").start(start_lazy)
+else
+  start_lazy()
+end
 
--- lua/init.lua
--- lua/init.lua
 
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    -- Only open tree if we opened a file (nvim main.cpp)
-    if vim.fn.argc() > 0 then
-      require("nvim-tree.api").tree.open()
-      vim.cmd "wincmd p" -- Focus the file, not the tree
-    end
-    -- If argc == 0, NvChad opens the Dashboard automatically.
-  end,
-})
 
--- Keyboard users
-vim.keymap.set("n", "<C-t>", function()
-  require("menu").open "default"
-end, {})
 
--- mouse users + nvimtree users!
-vim.keymap.set({ "n", "v" }, "<RightMouse>", function()
-  require("menu.utils").delete_old_menus()
-
-  vim.cmd.exec '"normal! \\<RightMouse>"'
-
-  -- clicked buf
-  local buf = vim.api.nvim_win_get_buf(vim.fn.getmousepos().winid)
-  local options = vim.bo[buf].ft == "NvimTree" and "nvimtree" or "default"
-
-  require("menu").open(options, { mouse = true })
-end, {})
-
--- Example: Integrating with a Telescope Picker
--- You would call spawn_template_project(selection[1]) inside your
--- Telescope attach_mappings function.
 
 require "project_templates"
-
-require("telescope").setup()
-require("telescope").load_extension "file_browser"
+require("healthcheck").run()

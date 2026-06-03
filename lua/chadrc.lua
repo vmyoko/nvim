@@ -19,7 +19,21 @@ if vim.g.neovide then
   vim.g.neovide_scroll_animation_length = 0.3
   vim.g.neovide_hide_mouse_when_typing = false
 
-  -- 4. COPY/PASTE SYNC (Crucial for hybrid feel)
+  -- 4. VISUAL EFFECTS (Transparency & Blur)
+  vim.g.neovide_transparency = 0.93
+  vim.g.neovide_window_blurred = true
+  
+  -- 5. CURSOR PARTICLES (The WOW factor)
+  vim.g.neovide_cursor_vfx_mode = "railgun" -- Try "torpedo", "pixiedust", "sonicboom", "ripple", "wireframe"
+  vim.g.neovide_cursor_vfx_particle_density = 10.0
+
+  -- 6. WINDOW PADDING (Breathes better)
+  vim.g.neovide_padding_top = 10
+  vim.g.neovide_padding_bottom = 10
+  vim.g.neovide_padding_right = 10
+  vim.g.neovide_padding_left = 10
+
+  -- 7. COPY/PASTE SYNC (Crucial for hybrid feel)
   -- This allows Ctrl+C/V in Windows to talk to your Neovim y/p
   vim.o.clipboard = "unnamedplus"
 
@@ -38,29 +52,18 @@ M.base46 = {
 }
 
 M.nvdash = {
-  load_on_startup = true,
-
-  buttons = {
-    { txt = " Project Manager", keys = "p", cmd = "ProjectManager" },
-    { txt = "  New Project", keys = "np", cmd = "NewProject" },
-    { txt = "  New File", keys = "nf", cmd = "NewFile" },
-
-    { txt = "" },
-
-    { txt = "  Find File", keys = "ff", cmd = "Telescope find_files" },
-    { txt = "󰩮  Find Word", keys = "fw", cmd = "Telescope live_grep" },
-    { txt = "󰆍  Open Terminal", keys = "c", cmd = "terminal" },
-
-    { txt = "" },
-
-    { txt = "  Themes", keys = "th", cmd = "Telescope themes" },
-  },
+  load_on_startup = false,
 }
 M.ui = {
   tabufline = {
     enabled = true,
     lazyload = false,
     order = { "treeOffset", "buffers", "tabs", "btns" },
+  },
+  
+  cmp = {
+    style = "flat_light",
+    icons_left = true,
   },
 }
 
