@@ -10,13 +10,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
       -- Open custom dashboard
       if not vim.g.wizard_active then
         vim.defer_fn(function()
-          local ok, err = pcall(function() require("configs.custom_dash").open() end)
+          local ok, err = pcall(function() require("configs.dashboard").open() end)
           if not ok then
             vim.notify("Dash Error: " .. tostring(err), vim.log.levels.ERROR)
           end
         end, 50)
-      else
-        vim.notify("Wizard active, skipping dash", vim.log.levels.INFO)
       end
     end
   end,

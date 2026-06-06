@@ -1,16 +1,18 @@
-local core = require("project_templates.core")
+local core = require "project_templates.core"
 
 local M = {}
 M.langs = {}
 
 local function load_templates()
-  local path = vim.fn.stdpath("config") .. "/lua/project_templates/langs/"
+  local path = vim.fn.stdpath "config" .. "/lua/project_templates/langs/"
   local handle = vim.uv.fs_scandir(path)
   if handle then
     while true do
       local name, type = vim.uv.fs_scandir_next(handle)
-      if not name then break end
-      if type == "file" and name:match("%.lua$") then
+      if not name then
+        break
+      end
+      if type == "file" and name:match "%.lua$" then
         local lang = name:gsub("%.lua$", "")
         M.langs[lang] = require("project_templates.langs." .. lang)
       end
@@ -25,61 +27,65 @@ M.NewProject = function()
     table.insert(langs_list, k)
   end
 
-  local pickers = require("telescope.pickers")
-  local finders = require("telescope.finders")
+  local pickers = require "telescope.pickers"
+  local finders = require "telescope.finders"
   local conf = require("telescope.config").values
-  local actions = require("telescope.actions")
-  local action_state = require("telescope.actions.state")
+  local actions = require "telescope.actions"
+  local action_state = require "telescope.actions.state"
 
-  vim.cmd("enew")
+  vim.cmd "enew"
   require("nvim-tree.api").tree.open()
-  vim.cmd("wincmd p")
+  vim.cmd "wincmd p"
 
-  pickers.new({}, {
-    prompt_title = "Select Template",
-    finder = finders.new_table({ results = langs_list }),
-    sorter = conf.generic_sorter({}),
-    attach_mappings = function(prompt_bufnr, map)
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        if selection then
-          local lang = selection[1]
-          vim.schedule(function()
-            M.langs[lang](function(project_data)
-              if project_data then
-                core.add_project(project_data)
-              end
+  pickers
+    .new({}, {
+      prompt_title = "Select Template",
+      finder = finders.new_table { results = langs_list },
+      sorter = conf.generic_sorter {},
+      attach_mappings = function(prompt_bufnr, map)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
+          local selection = action_state.get_selected_entry()
+          if selection then
+            local lang = selection[1]
+            vim.schedule(function()
+              M.langs[lang](function(project_data)
+                if project_data then
+                  core.add_project(project_data)
+                end
+              end)
             end)
-          end)
-        end
-      end)
-      return true
-    end,
-  }):find()
+          end
+        end)
+        return true
+      end,
+    })
+    :find()
 end
 
 M.NewFile = function()
-  vim.cmd("enew")
+  vim.cmd "enew"
   local new_buf_id = vim.api.nvim_get_current_buf()
   require("nvim-tree.api").tree.open()
-  vim.cmd("wincmd p")
+  vim.cmd "wincmd p"
 
-  require("telescope.builtin").filetypes({
+  require("telescope.builtin").filetypes {
     attach_mappings = function(prompt_bufnr, map)
-      local actions = require("telescope.actions")
-      local action_state = require("telescope.actions.state")
+      local actions = require "telescope.actions"
+      local action_state = require "telescope.actions.state"
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
         if selection then
           vim.api.nvim_set_option_value("filetype", selection[1], { buf = new_buf_id })
+          local virtual_name = "untitled." .. selection[1]
+          vim.api.nvim_buf_set_name(new_buf_id, virtual_name)
           print("Language Mode set to: " .. selection[1])
         end
       end)
       return true
     end,
-  })
+  }
 end
 
 M.ProjectManager = function()
@@ -87,12 +93,12 @@ M.ProjectManager = function()
 end
 
 M.Debug = function()
-  vim.fn.system("make build -B")
+  vim.fn.system "make build -B"
   require("dap").continue()
 end
 
 M.Run = function()
-  vim.cmd("terminal make run")
+  vim.cmd "terminal make run"
 end
 
 -- Global function to spawn template directly

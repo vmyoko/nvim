@@ -1,6 +1,6 @@
-local Layout = require("nui.layout")
-local Popup = require("nui.popup")
-local Input = require("nui.input")
+local Layout = require "nui.layout"
+local Popup = require "nui.popup"
+local Input = require "nui.input"
 
 local M = {}
 
@@ -8,7 +8,7 @@ local function set_focus(component)
   if component and component.winid and vim.api.nvim_win_is_valid(component.winid) then
     vim.api.nvim_set_current_win(component.winid)
     if component.is_input then
-      vim.cmd("startinsert!")
+      vim.cmd "startinsert!"
     end
   end
 end
@@ -35,23 +35,23 @@ M.create = function(config, on_submit)
   local focusable = {}
   local nodes = {}
 
-  local title_popup = Popup({
+  local title_popup = Popup {
     enter = false,
     focusable = false,
     border = { style = "single", text = { top = "NVim Project Creator", top_align = "center" } },
     win_options = { winhighlight = "Normal:PCreatorTitle,FloatBorder:PCreatorBorder" },
-  })
+  }
   vim.api.nvim_buf_set_lines(title_popup.bufnr, 0, 1, false, { title_text })
 
   local inputs_height = 0
   for _, f in ipairs(fields) do
     if f.type == "text" then
-      local p = Popup({
+      local p = Popup {
         enter = false,
         focusable = false,
         border = { style = "none" },
         win_options = { winhighlight = "Normal:PCreatorMain" },
-      })
+      }
       vim.api.nvim_buf_set_lines(p.bufnr, 0, -1, false, { " " .. f.label })
       table.insert(nodes, Layout.Box(p, { size = 1 }))
       inputs_height = inputs_height + 1
@@ -70,41 +70,41 @@ M.create = function(config, on_submit)
     end
   end
 
-  local sidebar = Popup({
+  local sidebar = Popup {
     enter = false,
     focusable = false,
     border = { style = "rounded", text = { top = " Info " } },
     win_options = { winhighlight = "Normal:PCreatorSide,FloatBorder:PCreatorBorder" },
-  })
+  }
   vim.api.nvim_buf_set_lines(sidebar.bufnr, 0, -1, false, preview_lines)
   local sidebar_height = math.max(#preview_lines + 2, inputs_height)
 
   if sidebar_height > inputs_height then
-    local filler = Popup({
+    local filler = Popup {
       enter = false,
       focusable = false,
       border = { style = "none" },
       win_options = { winhighlight = "Normal:PCreatorMain" },
-    })
+    }
     table.insert(nodes, Layout.Box(filler, { size = sidebar_height - inputs_height }))
   end
 
-  local Sbtn = Popup({
+  local Sbtn = Popup {
     enter = true,
     focusable = true,
     border = { style = "double" },
     win_options = { winhighlight = "Normal:PCreatorSBtn,FloatBorder:PCreatorSBtnBorder" },
     buf_options = { modifiable = false, readonly = true },
-  })
+  }
   vim.api.nvim_buf_set_lines(Sbtn.bufnr, 0, 1, false, { " [ 󰣪 BUILD PROJECT ] " })
 
-  local Cbtn = Popup({
+  local Cbtn = Popup {
     enter = true,
     focusable = true,
     border = { style = "rounded" },
     win_options = { winhighlight = "Normal:PCreatorBtn,FloatBorder:PCreatorBtnBorder" },
     buf_options = { modifiable = false, readonly = true },
-  })
+  }
   vim.api.nvim_buf_set_lines(Cbtn.bufnr, 0, 1, false, { " [ CHANGE LANGUAGE ] " })
 
   table.insert(focusable, Sbtn)
@@ -147,13 +147,13 @@ M.create = function(config, on_submit)
     layout:unmount()
 
     if not final_data.name or final_data.name == "" then
-      print("Project name cannot be empty!")
+      print "Project name cannot be empty!"
       return
     end
     if final_data.path then
       final_data.path = final_data.path:gsub("/$", "")
     end
-    
+
     -- Transform git string to boolean
     final_data.init_git = (final_data.init_git:lower() == "y")
 
@@ -161,7 +161,7 @@ M.create = function(config, on_submit)
   end
 
   for i, comp in ipairs(focusable) do
-    for _, mode in ipairs({ "n", "i" }) do
+    for _, mode in ipairs { "n", "i" } do
       comp:map(mode, "<Tab>", function()
         local next_idx = (i % #focusable) + 1
         set_focus(focusable[next_idx])
@@ -184,11 +184,11 @@ M.create = function(config, on_submit)
       comp:map("n", "<CR>", trigger_submit, { noremap = true })
     elseif comp == Cbtn then
       comp:map("n", "<CR>", function()
-        vim.cmd("NewProject")
+        vim.cmd "NewProject"
         layout:unmount()
       end, { noremap = true })
     else
-      for _, mode in ipairs({ "n", "i" }) do
+      for _, mode in ipairs { "n", "i" } do
         comp:map(mode, "<CR>", function()
           if focusable[i + 1] then
             set_focus(focusable[i + 1])

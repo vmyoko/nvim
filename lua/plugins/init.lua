@@ -8,8 +8,42 @@ return {
   -- 2. Language Server (LSP) Base
   {
     "neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" },
+    lazy = false,
+    dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
+    },
     config = function()
       require("nvchad.configs.lspconfig").defaults()
+
+      require("mason").setup()
+
+      local servers = {
+        "clangd",
+        "html",
+        "cssls",
+        "ts_ls",
+        "omnisharp",
+        "gopls",
+        "pyright",
+        "marksman",
+        "jsonls",
+        "lua_ls",
+      }
+
+      require("mason-lspconfig").setup {
+        ensure_installed = servers,
+        automatic_installation = true,
+        automatic_enable = true,
+      }
+
+      require("mason-tool-installer").setup {
+        ensure_installed = { "prettier", "clang-format", "stylua" },
+        auto_update = false,
+        run_on_start = true,
+      }
     end,
   },
 
@@ -38,13 +72,23 @@ return {
     },
     config = function()
       local dap = require "dap"
+      local mason_registry = require('mason-registry')
       local dapui = require "dapui"
+
+      local codelldb = mason_registry.get_package('codelldb')
+      local extension_path = codelldb:get_install_path() .. '/extension/'
+      local codelldb_path = extension_path .. 'adapter/codelldb'
 
       require("dap-go").setup()
 
       dap.adapters.codelldb = {
-        type = "executable",
-        command = "/home/vinim/.local/share/nvim/mason/bin/codelldb",
+        type = "server",
+        port = "${port}",
+        command = codelldb_path,
+        executable = {
+          command = codelldb_path,
+          args = {"--port", "${port}"}
+        }
       }
 
       dap.adapters.coreclr = {
@@ -52,14 +96,17 @@ return {
         command = "/snap/bin/netcoredbg",
       }
 
-      dap.configurations.rust = {
+      local codelldb_config = {
         {
           name = "Debug",
           type = "codelldb",
           request = "launch",
           program = function()
-            local exe_path = vim.fn.system "make echo-output-path"
-            exe_path = string.gsub(exe_path, "\n", "")
+            local result = vim.system({"make", "echo-output-path"}, { cwd = vim.fn.getcwd() }):wait()
+            if not (result.code == 0 and result.stdout) then
+              vim.notify("Failed to get executable path. Error : " .. (result.stderr), vim.log.levels.ERROR)
+            end
+            local exe_path = result.stdout:gsub("\n", "")
             return exe_path
           end,
           cwd = "${workspaceFolder}",
@@ -68,8 +115,9 @@ return {
         },
       }
 
-      dap.configurations.cpp = dap.configurations.rust
-      dap.configurations.c = dap.configurations.rust
+      dap.configurations.rust = codelldb_config
+      dap.configurations.cpp = codelldb_config
+      dap.configurations.c = codelldb_config
 
       dap.configurations.go = {
         {
@@ -145,41 +193,7 @@ return {
     end,
   },
 
-  -- 5. MASON (The Package Manager - Installs LSPs and Formatters)
-  {
-    "williamboman/mason.nvim",
-    dependencies = {
-      "williamboman/mason-lspconfig.nvim",
-      "WhoIsSethDaniel/mason-tool-installer.nvim",
-    },
-    config = function()
-      require("mason").setup()
-
-      -- Formatters and extra tools
-      require("mason-tool-installer").setup {
-        ensure_installed = { "prettier", "clang-format", "stylua" },
-        auto_update = false,
-        run_on_start = true,
-      }
-
-      -- LSPs to ensure are installed
-      require("mason-lspconfig").setup {
-        ensure_installed = {
-          "clangd",
-          "html",
-          "cssls",
-          "ts_ls",
-          "omnisharp",
-          "gopls",
-          "pyright",
-          "marksman",
-          "jsonls",
-          "lua_ls",
-        },
-        automatic_installation = true,
-      }
-    end,
-  },
+  --automatic_installation
 
   -- 6. MASON DAP (Configures Debuggers)
   {
@@ -403,10 +417,26 @@ return {
           ["cmp.entry.get_documentation"] = true,
         },
       },
+      popupmenu = {
+        enabled = true,
+        backend = "cmp",
+      },
       presets = {
         bottom_search = true,
         command_palette = true,
         long_message_to_split = true,
+      },
+      views = {
+        cmdline_popup = {
+          border = {
+            style = "none",
+            padding = { 2, 2 },
+          },
+          filter_options = {},
+          win_options = {
+            winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
+          },
+        },
       },
     },
     dependencies = {
@@ -414,12 +444,12 @@ return {
       {
         "rcarriga/nvim-notify",
         config = function()
-          require("notify").setup({
+          require("notify").setup {
             background_colour = "#000000",
-          })
+          }
         end,
       },
-    }
+    },
   },
 
   -- 19. HARPOON (Code Navigation)
@@ -434,8 +464,8 @@ return {
     version = "*",
     event = "VeryLazy",
     config = function()
-        require("nvim-surround").setup({})
-    end
+      require("nvim-surround").setup {}
+    end,
   },
 
   -- 21. OIL.NVIM (File Explorer)
@@ -453,7 +483,7 @@ return {
       "sindrets/diffview.nvim",
       "nvim-telescope/telescope.nvim",
     },
-    config = true
+    config = true,
   },
 
   -- 23. TROUBLE (Diagnostics)
@@ -476,8 +506,22 @@ return {
     event = "VeryLazy",
     opts = {},
     keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      {
+        "s",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").jump()
+        end,
+        desc = "Flash",
+      },
+      {
+        "S",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").treesitter()
+        end,
+        desc = "Flash Treesitter",
+      },
     },
   },
 
@@ -485,7 +529,7 @@ return {
   {
     "windwp/nvim-ts-autotag",
     config = function()
-      require('nvim-ts-autotag').setup()
+      require("nvim-ts-autotag").setup()
     end,
   },
 
@@ -528,7 +572,7 @@ return {
     "debugloop/telescope-undo.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function()
-      require("telescope").load_extension("undo")
+      require("telescope").load_extension "undo"
     end,
   },
 

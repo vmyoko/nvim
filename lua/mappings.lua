@@ -5,6 +5,12 @@ local map = vim.keymap.set
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 
+map({ "i", "n", "v" }, "<F5>", function()
+  vim.cmd("Debug")
+end)
+
+vim.keymap.set({ "i", "n", "v" }, "<S-F5>", '<cmd>Run<CR>')
+
 map({ "n", "t" }, "<C-t>", function()
   vim.cmd "FloatermToggle"
 end, {})
@@ -108,14 +114,6 @@ cmp.setup {
     ["<ESC>"] = cmp.mapping.abort()
   },
 }
-
-map({ "i", "n", "v" }, "<F5>", function()
-  vim.cmd "Debug"
-end)
-
-map({ "i", "n", "v" }, "<S-F5>", function()
-  vim.cmd "Run"
-end)
 
 map("n", "<leader>nf", function ()
   vim.cmd "NewFile"

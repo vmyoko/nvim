@@ -88,14 +88,14 @@ M.open = function()
     border = { style = "double" },
     win_options = { winhighlight = "Normal:PCreatorSBtn,FloatBorder:PCreatorSBtnBorder" },
   })
-  vim.api.nvim_buf_set_lines(btn_open.bufnr, 0, -1, false, { "    [ 󰝰 OPEN ]    " })
+  vim.api.nvim_buf_set_lines(btn_open.bufnr, 0, -1, false, { "      󰝰 OPEN      " })
 
   local btn_opt = Popup({
     enter = false, focusable = true,
     border = { style = "rounded" },
     win_options = { winhighlight = "Normal:PCreatorTitle,FloatBorder:PCreatorBorder" },
   })
-  vim.api.nvim_buf_set_lines(btn_opt.bufnr, 0, -1, false, { "   [  OPTIONS ]   " })
+  vim.api.nvim_buf_set_lines(btn_opt.bufnr, 0, -1, false, { "      OPTIONS     " })
 
   local function draw_list()
     local lines = {}

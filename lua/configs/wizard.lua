@@ -109,50 +109,6 @@ local function get_state()
   return 0
 end
 
-local function screen5()
-  close_wizard()
-  buf = vim.api.nvim_create_buf(false, true)
-  win = vim.api.nvim_open_win(buf, true, {
-    relative = "editor", width = vim.o.columns, height = vim.o.lines,
-    col = 0, row = 0, style = "minimal", zindex = 250
-  })
-
-  local function set_theme(theme_name)
-    close_wizard()
-    vim.g.wizard_active = false
-    if vim.fn.argc() == 0 then
-      vim.defer_fn(function()
-        local ok, dash = pcall(require, "configs.custom_dash")
-        if ok and dash.open then dash.open() end
-      end, 50)
-    end
-  end
-  
-  local lines = {}
-  for i=1, math.floor(vim.o.lines / 2) - 8 do table.insert(lines, "") end
-  table.insert(lines, "        Select your NvChad Theme:")
-  table.insert(lines, "")
-  
-  buttons = {}
-  
-  table.insert(lines, "            onedark           catppuccin           tokyonight  ")
-  local row = #lines - 1
-  table.insert(buttons, { text = "onedark", row = row, col_start = 12, col_end = 18, action = function() set_theme("onedark") end })
-  table.insert(buttons, { text = "catppuccin", row = row, col_start = 30, col_end = 39, action = function() set_theme("catppuccin") end })
-  table.insert(buttons, { text = "tokyonight", row = row, col_start = 51, col_end = 60, action = function() set_theme("tokyonight") end })
-  
-  table.insert(lines, "")
-  table.insert(lines, "            nord              gruvbox              oceanic-next  ")
-  row = #lines - 1
-  table.insert(buttons, { text = "nord", row = row, col_start = 12, col_end = 15, action = function() set_theme("nord") end })
-  table.insert(buttons, { text = "gruvbox", row = row, col_start = 30, col_end = 36, action = function() set_theme("gruvbox") end })
-  table.insert(buttons, { text = "oceanic-next", row = row, col_start = 51, col_end = 62, action = function() set_theme("oceanic-next") end })
-  
-  selected_btn = 1
-  draw_screen(lines, buttons, selected_btn)
-  setup_menu_keys()
-end
-
 local function screen4()
   close_wizard()
   
