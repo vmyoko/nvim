@@ -65,6 +65,8 @@ local function start_lazy()
   dofile(vim.g.base46_cache .. "statusline")
 end
 
+vim.opt.mouse = 'a'
+
 local user_data_path = vim.fn.stdpath "config" .. "/data/user.json"
 if vim.fn.filereadable(user_data_path) == 0 then
   require("configs.wizard").start(start_lazy)
